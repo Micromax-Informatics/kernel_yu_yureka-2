@@ -10,7 +10,6 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-
 #include "msm8953-pinctrl.dtsi"
 #include "msm8953-camera-sensor-qrd.dtsi"
 
@@ -33,70 +32,146 @@
 
 	i2c@78b7000 { /* BLSP1 QUP3 */
 		status = "okay";
-		synaptics@4b {
-			compatible = "synaptics,dsx-i2c";
-			reg = <0x4b>;
+		goodix_ts@5d {
+			compatible = "goodix,gt9xx";
+			reg = <0x5d>;	
 			interrupt-parent = <&tlmm>;
 			interrupts = <65 0x2008>;
-			vdd_ana-supply = <&vdd_vreg>;
-			vcc_i2c-supply = <&pm8953_l6>;
-			synaptics,pwr-reg-name = "vdd_ana";
-			synaptics,bus-reg-name = "vcc_i2c";
-			synaptics,irq-gpio = <&tlmm 65 0x2008>;
-			synaptics,irq-on-state = <0>;
-			synaptics,irq-flags = <0x2008>;
-			synaptics,power-delay-ms = <200>;
-			synaptics,reset-delay-ms = <200>;
-			synaptics,max-y-for-2d = <1919>;
-			synaptics,cap-button-codes = <139 158 172>;
-			synaptics,vir-button-codes = <139 180 2000 320 160
-						      158 540 2000 320 160
-						      172 900 2000 320 160>;
-			synaptics,resume-in-workqueue;
-			/* Underlying clocks used by secure touch */
-			clock-names = "iface_clk", "core_clk";
-			clocks = <&clock_gcc clk_gcc_blsp1_ahb_clk>,
-				<&clock_gcc clk_gcc_blsp1_qup3_i2c_apps_clk>;
+			vdd_ana-supply = <&pm8953_l10>;
+			vcc_i2c-supply = <&pm8953_l5>;
+			pinctrl-names = "pmx_ts_active","pmx_ts_suspend",
+                        "pmx_ts_release";
+                        pinctrl-0 = <&ts_int_active &ts_reset_active>;
+                        pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
+                        pinctrl-2 = <&ts_release>;
+			goodix,rst-gpio = <&tlmm 64 0x00>;
+			goodix,irq-gpio = <&tlmm 65 0x2008>;
+			goodix,cfg-group0 = [
+				41 D0 02 00 05 05 75 01 01 0F 24 
+				0F 64 3C 03 05 00 00 00 02 00 00 
+				00 16 19 1C 14 8C 0E 0E 24 00 31 
+				0D 00 00 00 83 33 1D 00 41 00 00 
+				00 00 00 08 0A 00 2B 1C 3C 94 D5 
+				03 08 00 00 04 93 1E 00 82 23 00 
+				74 29 00 69 2F 00 5F 37 00 5F 20 
+				40 60 00 F0 40 30 55 50 27 00 00 
+				00 00 00 00 00 00 00 00 00 00 00 
+				00 00 00 00 00 00 00 14 19 00 00 
+				50 50 02 04 06 08 0A 0C 0E 10 12 
+				14 16 18 1A 1C 00 00 00 00 00 00 
+				00 00 00 00 00 00 00 00 00 00 1D 
+				1E 1F 20 21 22 24 26 28 29 2A 1C 
+				18 16 14 13 12 10 0F 0C 0A 08 06 
+				04 02 00 00 00 00 00 00 00 00 00 
+				00 00 00 00 00 00 00 00 9C 01];
 		};
-	};
 
+               ftech@38 {
+                       compatible = "focaltech,5336";
+                       reg = <0x38>;
+		       interrupt-parent = <&tlmm>;
+                       interrupts = <65 0x2008>;
+                       vdd-supply = <&pm8953_l10>;
+                       vcc_i2c-supply = <&pm8953_l5>;
+                       /* pins used by touchscreen */
+                       pinctrl-names = "pmx_ts_active","pmx_ts_suspend",
+                               "pmx_ts_release";
+                       pinctrl-0 = <&ts_int_active &ts_reset_active>;
+                       pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
+                       pinctrl-2 = <&ts_release>;
+                       ftech,name = "ft5336";
+                       ftech,family-id = <0x36>;
+                       ftech,reset-gpio = <&tlmm 64 0x00>;
+                       ftech,irq-gpio = <&tlmm 65 0x2008>;
+                       ftech,display-coords = <0 0 1080 1920>;
+                       ftech,panel-coords = <0 0 1080 1920>;
+                       /*ftech,button-map= <139 102 158>;*/
+                       ftech,virtual-key1 = <139 180 2000>;/*menu*/
+                       ftech,virtual-key2 = <172 540 2000>;/*home*/
+                       ftech,virtual-key3 = <158 900 2000>;/*back*/
+                       ftech,no-force-update;
+                       ftech,i2c-pull-up;
+                       ftech,group-id = <1>;
+                       ftech,hard-reset-delay-ms = <20>;
+                       ftech,soft-reset-delay-ms = <200>;
+                       ftech,num-max-touches = <10>;
+                       ftech,fw-delay-aa-ms = <30>;
+                       ftech,fw-delay-55-ms = <30>;
+                       ftech,fw-upgrade-id1 = <0x79>;
+                       ftech,fw-upgrade-id2 = <0x18>;
+                       ftech,fw-delay-readid-ms = <10>;
+                       ftech,fw-delay-era-flsh-ms = <2000>;
+                       ftech,fw-auto-cal;
+                       ftech,ignore-id-check;
+		};
+
+               
+               atmel_mxt_ts@4a {
+          compatible = "atmel,mxt-ts";
+          reg = <0x4a>;
+          interrupt-parent = <&tlmm>;
+          interrupts = <65 0x2008>;
+          vdd-supply = <&pm8953_l10>;            
+                vcc_i2c-supply = <&pm8953_l5>;          
+          /* pins used by touchscreen */
+          pinctrl-names = "pmx_ts_active","pmx_ts_suspend","pmx_ts_release";
+                pinctrl-0 = <&ts_int_active &ts_reset_active>;
+                pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
+                pinctrl-2 = <&ts_release>;
+          atmel,reset-gpio = <&tlmm 64 0x0>;
+          atmel,irq-gpio = <&tlmm 65 0x2008>;
+          atmel,mxt-fw-name = "mxt_308u.fw";
+          atmel,config-array-size = <1>;
+          atmel,default-config = <0>;
+          atmel,irqflags = <0x2008>;
+          atmel,vendor-id-byte = /bits/ 8 <0 3>;
+          atmel,cfg_1 {
+                   atmel,family-id = <0xA6>;
+                   atmel,variant-id = <0x07>;
+                   atmel,version = <0x10>;
+                   atmel,build = <0xAB>;
+                   atmel,rev-id = <0x2>;
+                   atmel,panel-id = <0x31>;
+                   atmel,mxt-cfg-name = "mxt_308u_b5_f.raw";
+                   atmel,vendor-id = /bits/ 8 <0x31 0x31>; /* Biel HW ver 1 */
+                   atmel,key-codes = <139 172 158>;
+                   atmel,selfintthr-stylus = <0>;
+	                   atmel,t71-tchthr-pos = <22>;
+                   atmel,self-chgtime-min = <0>;
+                   atmel,self-chgtime-max = <0>;
+                   atmel,mult-intthr-sensitive = <12>;
+                   atmel,mult-intthr-not-sensitive = <17>;
+                   atmel,atchthr-sensitive = <6>;
+                   atmel,mult-tchthr-sensitive = <0>;
+                   atmel,mult-tchthr-not-sensitive = <0>;
+                   atmel,wake-up-self-adcx = <16>;
+                   };
+           };
+	
+	};
+	
+   gen-vkey {		
+	     compatible = "qcom,gen-vkeys";		
+	     label = "ft5346";		
+	     qcom,disp-maxx = <1080>;		
+       qcom,disp-maxy = <1920>;		
+	     qcom,panel-maxx = <1080>;		
+       qcom,panel-maxy = <2080>;		
+       qcom,key-codes = <139 172 158>;		
+       qcom,y-offset = <0>;		
+    };
+	
 	vdd_vreg: vdd_vreg {
 		compatible = "regulator-fixed";
 		status = "ok";
 		regulator-name = "vdd_vreg";
 	};
+	
+	boardinfo {
+		compatible = "wt:boardinfo";
+	};	
 };
 
-&wled {
-	qcom,cons-sync-write-delay-us = <1000>;
-};
-
-&spmi_bus {
-	qcom,pmi8950@2 {
-		qcom,leds@a100 {
-			status = "okay";
-			qcom,led_mpp_2 {
-				label = "mpp";
-				linux,name = "green";
-				linux,default-trigger = "none";
-				qcom,default-state = "off";
-				qcom,max-current = <40>;
-				qcom,current-setting = <5>;
-				qcom,id = <6>;
-				qcom,mode = "manual";
-				qcom,source-sel = <1>;
-				qcom,mode-ctrl = <0x60>;
-			};
-		};
-	};
-};
-
-/ {
-	qrd_batterydata: qcom,battery-data {
-		qcom,batt-id-range-pct = <15>;
-		#include "batterydata-qrd-sku1-4v4-2800mah.dtsi"
-	};
-};
 
 &pm8953_typec {
 	ss-mux-supply = <&pm8953_l13>;
@@ -105,26 +180,6 @@
 	pinctrl-0 = <&typec_ssmux_config>;
 };
 
-&pmi8950_charger {
-	qcom,battery-data = <&qrd_batterydata>;
-	qcom,float-voltage-mv = <4400>;
-	qcom,chg-led-sw-controls;
-	qcom,chg-led-support;
-	qcom,external-typec;
-	qcom,typec-psy-name = "typec";
-	qcom,thermal-mitigation = <3000 2500 2000 1500 1000 500 0>;
-	status = "okay";
-};
-
-&pmi8950_fg {
-	qcom,battery-data = <&qrd_batterydata>;
-	qcom,cold-bat-decidegc = <(-100)>;
-	qcom,cool-bat-decidegc = <0>;
-	qcom,warm-bat-decidegc = <550>;
-	qcom,hot-bat-decidegc = <550>;
-	qcom,bad-battery-detection-enable;
-	qcom,hold-soc-while-full;
-};
 
 &blsp1_uart0 {
 	status = "ok";
@@ -135,6 +190,8 @@
 &sdhc_1 {
 	/* device core power supply */
 	vdd-supply = <&pm8953_l8>;
+	/* emmc5.0 of hynix flash */
+	qcom,vdd-always-on;
 	qcom,vdd-voltage-level = <2900000 2900000>;
 	qcom,vdd-current-level = <200 570000>;
 
@@ -181,7 +238,7 @@
 		1 &intc 0 221 0
 		2 &tlmm 133 0>;
 	interrupt-names = "hc_irq", "pwr_irq", "status_irq";
-	cd-gpios = <&tlmm 133 0x1>;
+	cd-gpios = <&tlmm 133 0x0>;
 
 	qcom,clk-rates = <400000 20000000 25000000 50000000 100000000
 								200000000>;
@@ -192,14 +249,14 @@
 
 &i2c_5 { /* BLSP2 QUP1 (NFC) */
 	nq@28 {
-		compatible = "qcom,nq-nci";
+		compatible = "nxp,pn547";
 		reg = <0x28>;
-		qcom,nq-irq = <&tlmm 17 0x00>;
-		qcom,nq-ven = <&tlmm 16 0x00>;
-		qcom,nq-firm = <&tlmm 62 0x00>;
-		qcom,nq-clkreq = <&pm8953_gpios 2 0x00>;
+		nxp,irq-gpio = <&tlmm 17 0x00>;
+		nxp,ven-gpio = <&tlmm 16 0x00>;
+		nxp,firm-gpio = <&tlmm 62 0x00>;
+		nxp,clkreq-gpio = <&pm8953_gpios 2 0x00>;
 		interrupt-parent = <&tlmm>;
-		qcom,clk-src = "BBCLK2";
+		nxp,clk-src = "BBCLK2";
 		interrupts = <17 0>;
 		interrupt-names = "nfc_irq";
 		pinctrl-names = "nfc_active", "nfc_suspend";
@@ -211,15 +268,16 @@
 };
 
 &pm8953_gpios {
-	/* GPIO 2 (NFC_CLK_REQ) */
+	/* GPIO 2 (NFC_CLK_REQ)  qcom,pull = <0>; */
 	gpio@c100 {
 		qcom,mode = <0>;
 		qcom,output-type = <0>;
-		qcom,pull = <0>;
+		qcom,pull = <5>;
 		qcom,vin-sel = <2>;
 		qcom,out-strength = <3>;
 		qcom,src-sel = <0>;
 		qcom,master-en = <1>;
+		qcom,dtest-sel = <1>; 
 		status = "okay";
 	};
 };
@@ -228,14 +286,14 @@
 	status = "ok";
 };
 
-&flash_led {
-	/delete-node/ qcom,flash_1;
-	/delete-node/ qcom,torch_1;
+&i2c_5 {
+        status = "ok";
 };
 
 &led_flash0{
-	qcom,flash-source = <&pmi8950_flash0>;
-	qcom,torch-source = <&pmi8950_torch0>;
+	/*Req, xieyeu.wt, ADD, 2016-05-31, Dual color temperature flashlight*/
+	qcom,flash-source = <&pmi8950_flash0 &pmi8950_flash1>;
+	qcom,torch-source = <&pmi8950_torch0 &pmi8950_torch1>;
 };
 
 &pm8953_vadc {

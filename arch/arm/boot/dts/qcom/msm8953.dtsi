@@ -34,19 +34,27 @@
 		other_ext_mem: other_ext_region@0 {
 			compatible = "removed-dma-pool";
 			no-map;
-			reg = <0x0 0x85b00000 0x0 0xd00000>;
+			reg = <0x0 0x84A00000 0x0 0x1E00000>;
 		};
+
+		pstore_reserve_mem: pstore_reserve_mem_region@0 {  // address for PSTORE,  4M for PSTORE
+                        linux,reserve-contiguous-region; 
+                        linux,reserve-region; 
+                        linux,remove-completely; 
+                        reg = <0x0 0x86800000 0x0 0x00400000>; 
+                        label = "pstore_reserve_mem"; 
+                };
 
 		modem_mem: modem_region@0 {
 			compatible = "removed-dma-pool";
 			no-map-fixup;
-			reg = <0x0 0x86c00000 0x0 0x5600000>;
+			reg = <0x0 0x86c00000 0x0 0x5600000>;     //8C200000
 		};
 
 		reloc_mem: reloc_region@0 {
 			compatible = "removed-dma-pool";
 			no-map;
-			reg = <0x0 0x8c200000 0x0 0x1800000>;
+			reg = <0x0 0x8c200000 0x0 0x1a00000>;//8DA00000
 		};
 
 		venus_mem: venus_region@0 {
@@ -114,6 +122,8 @@
 		i2c2 = &i2c_2;
 		i2c3 = &i2c_3;
 		i2c5 = &i2c_5;
+		i2c6 = &i2c_6;
+		i2c8 = &i2c_8; /*audio bring up zhangjianming2.wt */
 		spi3 = &spi_3;
 	};
 
@@ -769,7 +779,57 @@
 			<&dma_blsp2 5 32 0x20000020 0x20>;
 		dma-names = "tx", "rx";
 	};
+	i2c_6: i2c@7af6000 { /* BLSP2 QUP1 */
+		compatible = "qcom,i2c-msm-v2";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg-names = "qup_phys_addr";
+		reg = <0x7af6000 0x600>;
+		interrupt-names = "qup_irq";
+		interrupts = <0 300 0>;
+		qcom,clk-freq-out = <100000>;
+		qcom,clk-freq-in  = <19200000>;
+		clock-names = "iface_clk", "core_clk";
+		clocks = <&clock_gcc clk_gcc_blsp2_ahb_clk>,
+			<&clock_gcc clk_gcc_blsp2_qup2_i2c_apps_clk>;
 
+		pinctrl-names = "i2c_active", "i2c_sleep";
+		pinctrl-0 = <&i2c_6_active>;
+		pinctrl-1 = <&i2c_6_sleep>;
+		qcom,noise-rjct-scl = <1>;
+		qcom,noise-rjct-sda = <1>;
+		qcom,master-id = <84>;
+		dmas = <&dma_blsp2 6 64 0x20000020 0x20>,
+			<&dma_blsp2 7 32 0x20000020 0x20>;
+		dma-names = "tx", "rx";
+		status = "ok";
+	};
+        /*audio bring up zhangjianming2.wt  start */
+	i2c_8: i2c@7af8000 { /* BLSP2 QUP4 */
+				compatible = "qcom,i2c-msm-v2";
+				#address-cells = <1>;
+				#size-cells = <0>;
+				reg-names = "qup_phys_addr";
+				reg = <0x7af8000 0x600>;
+				interrupt-names = "qup_irq";
+				interrupts = <0 302 0>;
+				qcom,clk-freq-out = <400000>;
+				qcom,clk-freq-in  = <19200000>;
+				clock-names = "iface_clk", "core_clk";
+				clocks = <&clock_gcc clk_gcc_blsp2_ahb_clk>,
+				 <&clock_gcc clk_gcc_blsp2_qup4_i2c_apps_clk>;
+
+				pinctrl-names = "i2c_active", "i2c_sleep";
+				pinctrl-0 = <&i2c_8_active>;
+				pinctrl-1 = <&i2c_8_sleep>;
+				qcom,noise-rjct-scl = <0>;
+				qcom,noise-rjct-sda = <0>;
+				qcom,master-id = <84>;
+				dmas = <&dma_blsp2 10 64 0x20000020 0x20>,
+				<&dma_blsp2 11 32 0x20000020 0x20>;
+				dma-names = "tx", "rx";
+		};
+	/*audio bring up zhangjianming2.wt  end */
 	slim_msm: slim@c140000{
 		cell-index = <1>;
 		compatible = "qcom,slim-ngd";
@@ -1192,6 +1252,19 @@
 		reg-names = "fuse-base";
 	};
 
+	sn_fuse: snfuse@0xa0128 {
+		compatible = "qcom,sn-fuse";
+		reg = <0xa0128 0x4>;
+		reg-names = "sn-base";
+	};
+
+
+	sec_boot_fuse: secbootfuse@0xa41d0 {
+		compatible = "qcom,sec-boot-fuse";
+		reg = <0xa41d0 0x4>;
+		reg-names = "sec-boot-base";
+	};
+
 	jtag_mm0: jtagmm@619c000 {
 		compatible = "qcom,jtagv8-mm";
 		reg = <0x619c000 0x1000>,
@@ -1582,9 +1655,9 @@
 		qcom,ce-opp-freq = <100000000>;
 	};
 
-	qcom_seecom: qseecom@85b00000 {
+	qcom_seecom: qseecom@84A00000 {
 		compatible = "qcom,qseecom";
-		reg = <0x85b00000 0x800000>;
+		reg = <0x84A00000 0x1900000>;
 		reg-names = "secapp-region";
 		qcom,hlos-num-ce-hw-instances = <1>;
 		qcom,hlos-ce-hw-instance = <0>;
@@ -2113,7 +2186,7 @@
 		qcom,qusb-phy-init-seq = <0xF8 0x80
 					0xB3 0x84
 					0x83 0x88
-					0xC0 0x8C
+					0xCD 0x8C
 					0x14 0x9C
 					0x30 0x08
 					0x79 0x0C

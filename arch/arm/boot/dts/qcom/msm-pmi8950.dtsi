@@ -196,10 +196,9 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 
-			qcom,iterm-ma = <100>;
-			qcom,float-voltage-mv = <4200>;
-			qcom,resume-delta-mv = <200>;
-			qcom,chg-inhibit-fg;
+			qcom,iterm-ma = <150>;
+			qcom,float-voltage-mv = <4400>;
+			qcom,resume-delta-mv = <50>;
 			qcom,rparasitic-uohm = <100000>;
 			qcom,bms-psy-name = "bms";
 			qcom,thermal-mitigation = <1500 700 600 0>;
@@ -311,7 +310,6 @@
 			compatible = "qcom,qpnp-fg";
 			#address-cells = <1>;
 			#size-cells = <1>;
-			qcom,resume-soc = <95>;
 			status = "okay";
 			qcom,bcl-lm-threshold-ma = <127>;
 			qcom,bcl-mh-threshold-ma = <405>;
@@ -559,7 +557,7 @@
 				qcom,max-current = <1000>;
 				qcom,duration = <1280>;
 				qcom,id = <0>;
-				qcom,current = <625>;
+				qcom,current = <1000>;
 			};
 
 			pmi8950_flash1: qcom,flash_1 {
@@ -570,7 +568,7 @@
 				qcom,max-current = <1000>;
 				qcom,duration = <1280>;
 				qcom,id = <1>;
-				qcom,current = <625>;
+				qcom,current = <1000>;
 			};
 
 			pmi8950_torch0: qcom,torch_0 {
@@ -580,7 +578,7 @@
 						"torch0_trigger";
 				qcom,max-current = <200>;
 				qcom,id = <0>;
-				qcom,current = <120>;
+				qcom,current = <200>;
 			};
 
 			pmi8950_torch1: qcom,torch_1 {
@@ -590,7 +588,7 @@
 						"torch1_trigger";
 				qcom,max-current = <200>;
 				qcom,id = <1>;
-				qcom,current = <120>;
+				qcom,current = <200>;
 			};
 
 			pmi8950_switch: qcom,switch {
@@ -615,7 +613,7 @@
 			qcom,wave-play-rate-us = <5263>;
 			qcom,actuator-type = "erm";
 			qcom,wave-shape = "square";
-			qcom,vmax-mv = <2000>;
+			qcom,vmax-mv = <3000>;
 			qcom,ilim-ma = <800>;
 			qcom,sc-deb-cycles = <8>;
 			qcom,int-pwm-freq-khz = <505>;

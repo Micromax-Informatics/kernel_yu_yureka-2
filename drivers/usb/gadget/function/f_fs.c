@@ -912,8 +912,11 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
 
 			if (unlikely(ret < 0)) {
 				ret = -EIO;
-			} else if (unlikely(
-				   wait_for_completion_interruptible(done))) {
+#if 1  //for cts testVideoSnapshot failed qhq.wt
+			} else if (unlikely(wait_for_completion_interruptible_timeout(done,10*HZ)<=0)) {
+#else
+			} else if (unlikely(wait_for_completion_interruptible(done))) {
+#endif
 				spin_lock_irq(&epfile->ffs->eps_lock);
 				/*
 				 * While we were acquiring lock endpoint got
@@ -1583,6 +1586,12 @@ static void ffs_data_clear(struct ffs_data *ffs)
 			ffs->gadget, ffs->flags);
 
 	ffs_closed(ffs);
+
+    //+bug168685, wangbiao.wt, 20160430, add
+    /* In case of quiting before FFS_FL_CALL_CLOSED_CALLBACK is set */
+    if (test_bit(FFS_FL_BOUND, &ffs->flags))
+        ffs_closed(ffs);
+    //-bug168685, wangbiao.wt, 20160430, add
 
 	/* Dump ffs->gadget and ffs->flags */
 	if (ffs->gadget)

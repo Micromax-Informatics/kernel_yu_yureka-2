@@ -59,7 +59,11 @@ static void scm_disable_sdi(void);
  * There is no API from TZ to re-enable the registers.
  * So the SDI cannot be re-enabled when it already by-passed.
 */
+#ifdef WT_DLOAD_MODE_SUPPORT
 static int download_mode = 1;
+#else
+static int download_mode = 0;
+#endif
 static struct kobject dload_kobj;
 
 #ifdef CONFIG_MSM_DLOAD_MODE
@@ -73,6 +77,9 @@ static void *emergency_dload_mode_addr;
 static bool scm_dload_supported;
 
 static int dload_set(const char *val, struct kernel_param *kp);
+
+
+
 /* interface for exporting attributes */
 struct reset_attribute {
 	struct attribute        attr;
@@ -317,7 +324,9 @@ static void msm_restart_prepare(const char *cmd)
 			qpnp_pon_set_restart_reason(
 				PON_RESTART_REASON_KEYS_CLEAR);
 			__raw_writel(0x7766550a, restart_reason);
-		} else if (!strncmp(cmd, "oem-", 4)) {
+		} else if (!strncmp(cmd, "fastmmi", 7)){	
+			       __raw_writel(0x77665505, restart_reason);				
+		}else if (!strncmp(cmd, "oem-", 4)) {
 			unsigned long code;
 			int ret;
 			ret = kstrtoul(cmd + 4, 16, &code);

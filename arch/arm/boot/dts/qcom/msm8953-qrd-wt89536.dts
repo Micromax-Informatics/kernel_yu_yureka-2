@@ -1,0 +1,83 @@
+/*
+ * Copyright (c) 2015, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+
+#include "msm8953.dtsi"
+#include "msm8953-qrd-wt89536.dtsi"
+#include "msm8953-audio-mtp.dtsi"
+
+/ {
+	model = "Qualcomm Technologies, Inc. MSM8953 QRD WT89536";
+	compatible = "qcom,msm8953-qrd-wt89536",
+		   "qcom,msm8953-qrd", "qcom,msm8953", "qcom,qrd";
+	qcom,board-id= <0x1000b 2>;
+};
+/ {
+	qrd_batterydata: qcom,battery-data {
+		qcom,batt-id-range-pct = <15>;
+		//#include "batterydata-qrd-sku1-4v4-2800mah.dtsi"
+		#include "n2-qrd-atl-4000mah.dtsi"
+	};
+};
+//+Other_platform_modify 20160411 xuji.wt add charging config
+&pmi8950_charger {
+	qcom,battery-data = <&qrd_batterydata>;
+	qcom,float-voltage-mv = <4400>;
+	qcom,resume-delta-mv = <50>;
+	qcom,parallel-usb-min-current-ma = <1400>;
+	qcom,parallel-usb-9v-min-current-ma = <900>;
+	qcom,parallel-allowed-lowering-ma = <500>;
+	qcom,charge-unknown-battery;
+	qcom,thermal-mitigation = <2000 1600 1500 1200 1000>;//bug 197586 modify cm-zhangmaosheng the hight temperature can't charging
+	//bug 197166 xuji.wt 20160716 disable thermal for MTBF test
+	//qcom,chg-led-sw-controls;
+	//qcom,chg-led-support;
+	status = "okay";
+};
+
+&pmi8950_fg {
+	qcom,battery-data = <&qrd_batterydata>;
+	//+Bug_156190_modify 20160402 xuji.wt modify temp value
+	qcom,cold-bat-decidegc = <(-50)>;
+	qcom,cool-bat-decidegc = <(100)>;
+	qcom,hot-bat-decidegc = <570>;
+	qcom,warm-bat-decidegc = <450>;//bug 198644 xuji.wt 20160726 modify temp value for MTBF test
+	//-Bug_156190_modify 20160402 xuji.wt modify temp value
+	qcom,thermal-coefficients = [DA 86 F0 50 08 3C];//bug 159995 modify cm-zhangmaosheng 2016/05/10
+	qcom,fg-iterm-ma = <200>;//bug 197166 xuji.wt 20160716 disable thermal for MTBF test
+	qcom,fg-chg-iterm-ma = <150>;
+	qcom,fg-cutoff-voltage-mv = <3300>;
+	qcom,fg-cc-cv-threshold-mv = <4390>;
+	qcom,cl-max-increment-deciperc = <1>;
+	qcom,cl-max-decrement-deciperc = <1>;
+	qcom,fg-delta-soc = <1>;
+	qcom,cold-hot-jeita-hysteresis = <50 70>;
+	qcom,bad-battery-detection-enable;
+	qcom,hold-soc-while-full;
+};
+
+&i2c_2 {
+	pericom-type-c@1d {
+		status="disabled";
+	};
+	/* Parallel-charger configuration */
+	smb1351-charger@1d {
+		compatible = "qcom,smb1351-charger";
+		reg = <0x1d>;
+		qcom,parallel-en-pin-polarity = <1>;
+		qcom,parallel-charger;
+		qcom,float-voltage-mv = <4400>;
+		qcom,recharge-mv = <100>;
+	};
+};//-Other_platform_modify 20160411 xuji.wt add charging config

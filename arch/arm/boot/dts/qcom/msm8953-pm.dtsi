@@ -324,6 +324,7 @@
 			<0xff 114>, /* qdsd_intr_out */
 			<0xff 126>, /* app_tcu_cxt_irpt_vec[11] */
 			<0xff 128>, /* blsp1_peripheral_irq[3] */
+			<0xff 129>, /* tp i2c interrupt, modify by wangxun 20160920 */
 			<0xff 131>, /* qup_irq */
 			<0xff 136>, /* app_tcu_cxt_irpt_vec[15] */
 			<0xff 137>, /* app_tcu_cxt_irpt_vec[16] */

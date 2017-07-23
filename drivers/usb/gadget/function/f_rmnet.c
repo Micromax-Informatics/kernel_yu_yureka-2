@@ -1391,8 +1391,10 @@ static int frmnet_init_port(const char *ctrl_name, const char *data_name,
 	rmnet_port = &rmnet_ports[nr_rmnet_ports];
 	rmnet_port->port = dev;
 	rmnet_port->port_num = nr_rmnet_ports;
-	rmnet_port->ctrl_xport = str_to_xport(ctrl_name);
-	rmnet_port->data_xport = str_to_xport(data_name);
+	//change by wingtech,for qmi connect issue
+	rmnet_port->ctrl_xport = USB_GADGET_XPORT_QTI;//str_to_xport(ctrl_name);
+	rmnet_port->data_xport = USB_GADGET_XPORT_BAM2BAM_IPA;//str_to_xport(data_name);
+
 
 	switch (rmnet_port->ctrl_xport) {
 	case USB_GADGET_XPORT_SMD:

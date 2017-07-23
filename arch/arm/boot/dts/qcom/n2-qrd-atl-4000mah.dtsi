@@ -1,0 +1,49 @@
+
+qcom,Atl_4000mah {
+	/* #Atl_4000mah*/
+	qcom,max-voltage-uv = <4400000>;
+	qcom,nom-batt-capacity-mah = <4000>;
+	qcom,batt-id-kohm = <100>;
+	qcom,battery-beta = <3380>;
+	qcom,battery-type = "Atl_4000mah";
+	qcom,chg-rslow-comp-c1 = <2665462>;
+	qcom,chg-rslow-comp-c2 = <3087801>;
+	qcom,chg-rs-to-rslow = <971662>;
+	qcom,chg-rslow-comp-thr = <0x99>;
+	qcom,checksum = <0xAD5E>;
+	qcom,gui-version = "PMI8950GUI - 2.0.0.16";
+	qcom,fg-profile-data = [
+		 DF 83 BA 7C 
+		 0D 81 3B 77 
+		 68 83 0A 75 
+		 D7 89 C7 94 
+		 0F 82 B4 9A 
+		 B7 BD 82 CA 
+		 55 11 FC 83 
+		 69 7D 7B 81 
+		 F0 77 54 83 
+		 3D 6A B3 78 
+		 33 86 54 82 
+		 9E 99 F3 BC 
+		 E2 C9 58 0D 
+		 A3 0F C1 58 
+		 14 70 EE FC 
+		 64 37 F4 3C 
+		 3E 25 00 00 
+		 A4 45 27 31 
+		 FE 22 00 00 
+		 00 00 00 00 
+		 00 00 00 00 
+		 18 70 94 6A 
+		 5F 70 17 88 
+		 8C 6F 5C 62 
+		 B2 63 AA 80 
+		 0D 6E 6E 60 
+		 13 74 A8 A2 
+		 15 94 62 61 
+		 64 A0 71 0C 
+		 28 00 FF 36 
+		 F0 11 30 03 
+		 00 00 00 0C 
+	];
+};

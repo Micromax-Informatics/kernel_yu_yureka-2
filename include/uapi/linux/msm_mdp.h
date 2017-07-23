@@ -70,6 +70,10 @@
 #define MSMFB_LPM_ENABLE	_IOWR(MSMFB_IOCTL_MAGIC, 170, unsigned int)
 #define MSMFB_MDP_PP_GET_FEATURE_VERSION _IOWR(MSMFB_IOCTL_MAGIC, 171, \
 					      struct mdp_pp_feature_version)
+	/*---req_lcd mindan.wt 2016/3/29
+#define MSMFB_ENHANCE_SET_GAMMA   _IOWR(MSMFB_IOCTL_MAGIC, 172, unsigned int)
+#define MSMFB_ENHANCE_SET_CE   _IOWR(MSMFB_IOCTL_MAGIC, 173, unsigned int)
+	---req_lcd mindan.wt 2016/3/29*/
 
 #define FB_TYPE_3D_PANEL 0x10101010
 #define MDP_IMGTYPE2_START 0x10000

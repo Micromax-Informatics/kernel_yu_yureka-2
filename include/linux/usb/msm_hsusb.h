@@ -123,6 +123,7 @@ enum msm_usb_phy_type {
 #define IDEV_CHG_MAX	1500
 #define IUNIT		100
 #define IDEV_HVDCP_CHG_MAX	1800
+#define IDEV_CHG_MIN 500  //Bug_146093_modify huangfusheng.wt 20160216 solve invalid usb cable can not charging issue	
 
 /**
  * Different states involved in USB charger detection.

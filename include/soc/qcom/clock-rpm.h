@@ -176,5 +176,5 @@ extern struct clk_rpmrs_data clk_rpmrs_data_smd;
 
 #define DEFINE_CLK_RPM_SMD_XO_BUFFER_PINCTRL(name, active, r_id) \
 	__DEFINE_CLK_RPM_BRANCH(name, active, RPM_CLK_BUFFER_A_REQ, r_id, 0, \
-	1000, RPM_KEY_PIN_CTRL_CLK_BUFFER_ENABLE_KEY, &clk_rpmrs_data_smd)
+	19200, RPM_KEY_PIN_CTRL_CLK_BUFFER_ENABLE_KEY, &clk_rpmrs_data_smd)
 #endif

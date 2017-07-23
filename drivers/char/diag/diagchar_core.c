@@ -1343,6 +1343,7 @@ static int diag_md_session_check(int curr_mode, int req_mode,
 {
 	int err = 0;
 	struct diag_md_session_t *session_info = NULL;
+//	DIAG_LOG(DIAG_DEBUG_USERSPACE,"curr_mode : %d, req_mode :%d, param->mode_param : %d, driver->md_session_mode :%d \n",curr_mode,req_mode,param->mode_param,driver->md_session_mode);
 
 	if (!param || !change_mode)
 		return -EIO;

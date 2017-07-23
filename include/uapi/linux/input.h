@@ -480,6 +480,8 @@ struct input_keymap_entry {
 #define KEY_RFKILL		247	/* Key that controls all radios */
 
 #define KEY_MICMUTE		248	/* Mute / unmute the microphone */
+//Add,@wangdongbo.wt_20160606
+#define KEY_GESTURE     	252
 
 /* Code 255 is reserved for special needs of AT keyboard driver */
 

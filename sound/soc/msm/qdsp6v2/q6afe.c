@@ -6194,6 +6194,39 @@ int afe_unmap_rtac_block(uint32_t *mem_map_handle)
 done:
 	return result;
 }
+/*----------audio bring up,zhangjianming2.wt           start --------*/
+int msm_q6_quin_mi2s_clocks(bool enable)
+{	
+	union afe_port_config port_config;	
+	u16 port_id = AFE_PORT_ID_QUINARY_MI2S_RX;	
+	int rc = 0;	
+	pr_err("%s: quin mi2s %s \n", __func__,enable ? "enable":"disable");
+	if(enable) {
+		port_config.i2s.channel_mode =AFE_PORT_I2S_SD0 ;	
+		port_config.i2s.mono_stereo = MSM_AFE_CH_STEREO;
+		port_config.i2s.data_format = 0;
+		port_config.i2s.bit_width = 16;
+		port_config.i2s.i2s_cfg_minor_version = AFE_API_VERSION_I2S_CONFIG;
+		port_config.i2s.sample_rate = 48000;
+		port_config.i2s.ws_src = 1;
+		port_config.i2s.reserved =0;
+		rc = afe_port_start(port_id, &port_config, 48000);
+		if (IS_ERR_VALUE(rc)) {
+			pr_err("%s:fail to open AFE port\n",__func__);
+			return -EINVAL;
+			}
+		} else {
+		rc = afe_close(port_id);
+		if (IS_ERR_VALUE(rc)) {
+			pr_err("%s:fail to close AFE port\n",__func__);
+			return -EINVAL;
+			}
+		}	
+		return rc;
+}
+/*----------audio bring up,zhangjianming2.wt           end --------*/
+
+
 
 static int __init afe_init(void)
 {

@@ -2835,6 +2835,12 @@ static void msm_otg_sm_work(struct work_struct *w)
 							IDEV_CHG_MAX);
 					/* fall through */
 				case USB_SDP_CHARGER:
+					//+Bug_146093_modify huangfusheng.wt 20160216 solve invalid usb cable can not charging issue	
+				
+						msm_otg_notify_charger(motg,
+							IDEV_CHG_MIN);		
+					
+					//-Bug_146093_modify huangfusheng.wt 20160216 solve invalid usb cable can not charging issue
 					pm_runtime_get_sync(otg->phy->dev);
 					msm_otg_start_peripheral(otg, 1);
 					otg->phy->state =

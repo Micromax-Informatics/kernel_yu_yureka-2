@@ -891,7 +891,16 @@ static int32_t msm_flash_get_dt_data(struct device_node *of_node,
 	CDBG("subdev id %d\n", fctrl->subdev_id);
 
 	fctrl->flash_driver_type = FLASH_DRIVER_DEFAULT;
-
+	/*Bug187442, xieyue.wt, MODIFY, 2016-06-16, flash light*/
+	/* Read the flash and torch source info from device tree node */
+	rc = msm_flash_get_pmic_source_info(of_node, fctrl); 
+	if (rc < 0) { 
+		pr_err("%s:%d msm_flash_get_pmic_source_info failed rc %d\n", __func__, __LINE__, rc); 
+		return rc; 
+	} 
+	if (fctrl->flash_driver_type == FLASH_DRIVER_PMIC) 
+		return 0; 
+	
 	/* Read the CCI master. Use M0 if not available in the node */
 	rc = of_property_read_u32(of_node, "qcom,cci-master",
 		&fctrl->cci_i2c_master);
@@ -919,13 +928,6 @@ static int32_t msm_flash_get_dt_data(struct device_node *of_node,
 	CDBG("%s:%d fctrl->flash_driver_type = %d", __func__, __LINE__,
 		fctrl->flash_driver_type);
 
-	/* Read the flash and torch source info from device tree node */
-	rc = msm_flash_get_pmic_source_info(of_node, fctrl);
-	if (rc < 0) {
-		pr_err("%s:%d msm_flash_get_pmic_source_info failed rc %d\n",
-			__func__, __LINE__, rc);
-		return rc;
-	}
 	return rc;
 }
 

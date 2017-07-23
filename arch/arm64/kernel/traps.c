@@ -41,6 +41,7 @@
 #include <asm/edac.h>
 
 #include <trace/events/exception.h>
+#include <linux/timekeeping.h>
 
 static const char *handler[]= {
 	"Synchronous Abort",
@@ -60,7 +61,7 @@ static void dump_mem(const char *lvl, const char *str, unsigned long bottom,
 	unsigned long first;
 	mm_segment_t fs;
 	int i;
-
+	struct timeval tv;
 	/*
 	 * We need to switch to kernel mode so that we can use __get_user
 	 * to safely read from kernel space.  Note that we now dump the
@@ -68,8 +69,9 @@ static void dump_mem(const char *lvl, const char *str, unsigned long bottom,
 	 */
 	fs = get_fs();
 	set_fs(KERNEL_DS);
-
-	printk("%s%s(0x%016lx to 0x%016lx)\n", lvl, str, bottom, top);
+	
+	do_gettimeofday(&tv);
+	printk("[ %ld ] %s%s(0x%016lx to 0x%016lx)\n", tv.tv_sec, lvl, str, bottom, top);
 
 	for (first = bottom & ~31; first < top; first += 32) {
 		unsigned long p;
@@ -96,9 +98,9 @@ static void dump_mem(const char *lvl, const char *str, unsigned long bottom,
 static void dump_backtrace_entry(unsigned long where, unsigned long stack)
 {
 	print_ip_sym(where);
-	if (in_exception_text(where))
-		dump_mem("", "Exception stack", stack,
-			 stack + sizeof(struct pt_regs));
+    if (in_exception_text(where))               
+            dump_mem("", "kernel panic : Exception stack", stack,
+			stack + sizeof(struct pt_regs));
 }
 
 static void dump_instr(const char *lvl, struct pt_regs *regs)

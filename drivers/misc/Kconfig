@@ -571,6 +571,12 @@ config TI_DRV2667
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called ti_drv2667.
+config HARDWARE_INFO
+	tristate "Wingtech Hardware Information support"
+	help
+	  This option enables device driver to initial the hardware info module.
+	  the docking station of various models of Qualcomm Technology's
+	  LiQUID Mobile Development Platforms.
 
 config QPNP_MISC
 	tristate "QPNP Misc Peripheral"

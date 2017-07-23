@@ -26,11 +26,16 @@
 #include "mdss_dsi.h"
 #include "mdss_dba_utils.h"
 
+#include <linux/hardware_info.h> //req  wuzhenzhen.wt 20140924 add for hardware info
+extern char Lcm_name[HARDWARE_MAX_ITEM_LONGTH]; //req  wuzhenzhen.wt 20140924 add for hardware info
+
 #define DT_CMD_HDR 6
 #define MIN_REFRESH_RATE 48
 #define DEFAULT_MDP_TRANSFER_TIME 14000
 
 #define VSYNC_DELAY msecs_to_jiffies(17)
+
+extern bool is_Lcm_Present;//heming@wingtech.com,20140730, disable lcm backlight when lcm is not connected 
 
 DEFINE_LED_TRIGGER(bl_led_trigger);
 
@@ -280,7 +285,7 @@ int mdss_dsi_panel_reset(struct mdss_panel_data *pdata, int enable)
 		pr_err("%s: Invalid input data\n", __func__);
 		return -EINVAL;
 	}
-
+	printk("caofeng get LCD name %s\n",Lcm_name);
 	ctrl_pdata = container_of(pdata, struct mdss_dsi_ctrl_pdata,
 				panel_data);
 
@@ -381,7 +386,12 @@ int mdss_dsi_panel_reset(struct mdss_panel_data *pdata, int enable)
 			gpio_set_value((ctrl_pdata->disp_en_gpio), 0);
 			gpio_free(ctrl_pdata->disp_en_gpio);
 		}
-		gpio_set_value((ctrl_pdata->rst_gpio), 0);
+		//caofeng.wt added for LCD OTM1901A reset hold high in sleep mode 20160616
+		if((!strcmp(Lcm_name,"otm1901a_1080p_video_DJ_otp")) || (!strcmp(Lcm_name,"r63350_1080p_video_Tianma"))){
+			gpio_set_value((ctrl_pdata->rst_gpio), 1);
+		}else{
+			gpio_set_value((ctrl_pdata->rst_gpio), 0);
+		}
 		gpio_free(ctrl_pdata->rst_gpio);
 		if (gpio_is_valid(ctrl_pdata->mode_gpio))
 			gpio_free(ctrl_pdata->mode_gpio);
@@ -716,6 +726,30 @@ static int mdss_dsi_panel_on(struct mdss_panel_data *pdata)
 			goto end;
 	}
 
+
+
+/*+req_LCD mindan.wt, add, 2016/3/29,add LCD gamma/ce control code
+	
+	if(ctrl->init_last){
+		if (ctrl->gamma_cmds.cmd_cnt)
+			mdss_dsi_panel_cmds_send(ctrl, &ctrl->gamma_cmds,CMD_REQ_COMMIT);
+		if (ctrl->ce_cmds.cmd_cnt)
+			mdss_dsi_panel_cmds_send(ctrl, &ctrl->ce_cmds,CMD_REQ_COMMIT);
+		if (ctrl->on_cmds.cmd_cnt)
+			mdss_dsi_panel_cmds_send(ctrl, &ctrl->on_cmds,CMD_REQ_COMMIT);
+	}
+	else {
+		if (ctrl->on_cmds.cmd_cnt)
+			mdss_dsi_panel_cmds_send(ctrl, &ctrl->on_cmds,CMD_REQ_COMMIT);
+		if (ctrl->gamma_cmds.cmd_cnt)
+			mdss_dsi_panel_cmds_send(ctrl, &ctrl->gamma_cmds,CMD_REQ_COMMIT);
+		if (ctrl->ce_cmds.cmd_cnt)
+			mdss_dsi_panel_cmds_send(ctrl, &ctrl->ce_cmds,CMD_REQ_COMMIT);
+	}
+-req_LCD mindan.wt, add, 2016/3/29,add LCD gamma/ce control code*/
+
+
+
 	on_cmds = &ctrl->on_cmds;
 
 	if ((pinfo->mipi.dms_mode == DYNAMIC_MODE_SWITCH_IMMEDIATE) &&
@@ -834,6 +868,56 @@ static int mdss_dsi_panel_low_power_config(struct mdss_panel_data *pdata,
 	pr_debug("%s:-\n", __func__);
 	return 0;
 }
+
+
+/*+req_LCD mindan.wt, add, 2016/3/29,add LCD gamma/ce control code
+int mdss_dsi_panel_gamma(struct mdss_panel_data *pdata)
+{
+	struct mipi_panel_info *mipi;
+	struct mdss_dsi_ctrl_pdata *ctrl = NULL;
+
+	if (pdata == NULL) {
+		pr_err("%s: Invalid input data\n", __func__);
+		return -EINVAL;
+	}
+	
+	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
+				panel_data);
+	mipi  = &pdata->panel_info.mipi;
+
+	pr_debug("%s: ctrl=%p ndx=%d\n", __func__, ctrl, ctrl->ndx);
+
+	if (ctrl->gamma_cmds.cmd_cnt)
+		mdss_dsi_panel_cmds_send(ctrl, &ctrl->gamma_cmds,CMD_REQ_COMMIT);
+
+	pr_debug("%s:-\n", __func__);
+	return 0;
+}
+
+int mdss_dsi_panel_ce(struct mdss_panel_data *pdata)
+{
+	struct mipi_panel_info *mipi;
+	struct mdss_dsi_ctrl_pdata *ctrl = NULL;
+
+	if (pdata == NULL) {
+		pr_err("%s: Invalid input data\n", __func__);
+		return -EINVAL;
+	}
+	
+	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
+				panel_data);
+	mipi  = &pdata->panel_info.mipi;
+
+	pr_debug("%s: ctrl=%p ndx=%d\n", __func__, ctrl, ctrl->ndx);
+	
+	if (ctrl->ce_cmds.cmd_cnt)
+		mdss_dsi_panel_cmds_send(ctrl, &ctrl->ce_cmds,CMD_REQ_COMMIT);
+
+	pr_debug("%s:-\n", __func__);
+	return 0;
+}
+-req_LCD mindan.wt, add, 2016/3/29,add LCD gamma/ce control code*/
+
 
 static void mdss_dsi_parse_trigger(struct device_node *np, char *trigger,
 		char *trigger_key)
@@ -2413,6 +2497,25 @@ static int mdss_panel_parse_dt(struct device_node *np,
 	pinfo->mipi.force_clk_lane_hs = of_property_read_bool(np,
 		"qcom,mdss-dsi-force-clock-lane-hs");
 
+/*+req_LCD mindan.wt, add, 2016/3/24,add LCD gamma/ce control code
+      mdss_dsi_parse_dcs_cmds(np, &ctrl_pdata->warm_cmds,
+		"qcom,mdss-dsi-panel-warm-command", "qcom,mdss-dsi-panel-gamma-command-state");
+		
+	mdss_dsi_parse_dcs_cmds(np, &ctrl_pdata->cool_cmds,
+		"qcom,mdss-dsi-panel-cool-command", "qcom,mdss-dsi-panel-gamma-command-state");
+		
+	mdss_dsi_parse_dcs_cmds(np, &ctrl_pdata->nature_cmds,
+		"qcom,mdss-dsi-panel-nature-command", "qcom,mdss-dsi-panel-gamma-command-state");
+	
+	mdss_dsi_parse_dcs_cmds(np, &ctrl_pdata->standard_cmds,
+		"qcom,mdss-dsi-panel-ce-std-command", "qcom,mdss-dsi-panel-ce-command-state");
+	
+	mdss_dsi_parse_dcs_cmds(np, &ctrl_pdata->vivid_cmds,
+		"qcom,mdss-dsi-panel-ce-vivid-command", "qcom,mdss-dsi-panel-ce-command-state");
+	
+	+req_LCD mindan.wt, add, 2016/3/24,add LCD gamma/ce control code*/	
+
+
 	rc = mdss_dsi_parse_panel_features(np, ctrl_pdata);
 	if (rc) {
 		pr_err("%s: failed to parse panel features\n", __func__);
@@ -2469,6 +2572,7 @@ int mdss_dsi_panel_init(struct device_node *node,
 	} else {
 		pr_info("%s: Panel Name = %s\n", __func__, panel_name);
 		strlcpy(&pinfo->panel_name[0], panel_name, MDSS_MAX_PANEL_LEN);
+                strcpy(Lcm_name, panel_name);//req  wuzhenzhen.wt 20140924 add for hardware info
 	}
 	rc = mdss_panel_parse_dt(node, ctrl_pdata);
 	if (rc) {
@@ -2483,8 +2587,12 @@ int mdss_dsi_panel_init(struct device_node *node,
 	ctrl_pdata->on = mdss_dsi_panel_on;
 	ctrl_pdata->post_panel_on = mdss_dsi_post_panel_on;
 	ctrl_pdata->off = mdss_dsi_panel_off;
+	
 	ctrl_pdata->low_power_config = mdss_dsi_panel_low_power_config;
-	ctrl_pdata->panel_data.set_backlight = mdss_dsi_panel_bl_ctrl;
+        if(is_Lcm_Present)//heming@wingtech.com,20140730, disable lcm backlight when lcm is not connected
+	{
+	        ctrl_pdata->panel_data.set_backlight = mdss_dsi_panel_bl_ctrl;
+        }
 	ctrl_pdata->switch_mode = mdss_dsi_panel_switch_mode;
 
 	return 0;
